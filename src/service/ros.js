@@ -13,4 +13,7 @@ async function receiveRobotInfo() {
     })
 }
 
+exports.receiveRobotinfo = async (req, res) =>{
+    receiveRobotInfo()
+}
 //여기

@@ -1,6 +1,6 @@
 const request = require('request');
 
-var robot = "http://211.37.13.187";
+var robot = "http://211.37.13.187/";
 
 function call(body) {
     var option = {
@@ -16,6 +16,6 @@ return new Promise(function () {
 });
 }
 
-exports.postcall = async (req, res) => (
-    await call(req, res)
+exports.postcall = async (body) => (
+    await call(body)
 );
