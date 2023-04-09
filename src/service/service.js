@@ -1,18 +1,17 @@
 const request = require('request');
 
-var robot = "http://localhost:4000/"
+var robot = "http://211.37.13.187";
 
-function call(req, response) {
+function call(body) {
     var option = {
     uri: robot,
     method: 'POST',
-    body: req.body,
+    body: body,
     json: true
 }
-console.log(req.body)
 return new Promise(function () {
     request.post(option, function (err, res, body) {
-        response.send(req.body);
+        console.log(res.body);
     });
 });
 }
