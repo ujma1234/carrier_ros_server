@@ -3,12 +3,12 @@ const http = require('http');
 function sendRobotInfoToServer(robotInfo) {
     const serverUrl = '"http://211.37.13.187/'
 
-    const pstData = JSON.stringify(robotInfo);
+    const postData = JSON.stringify(robotInfo);
     const req = http.request(serverUrl, {
         method: 'POST',
         headers: {
             'Content-Type' : 'application/json',
-            'Content-Length': Buffer.byteLength(poseData),
+            'Content-Length': Buffer.byteLength(postData),
         }
     }, (res) =>{
         let data = '';
@@ -16,7 +16,7 @@ function sendRobotInfoToServer(robotInfo) {
             data += chunk;
         });
         res.on('end', () =>{
-            console.log('Sent robot info to server', poseData);
+            console.log('Sent robot info to server', postData);
         });
     });
 
@@ -24,6 +24,6 @@ function sendRobotInfoToServer(robotInfo) {
         console.error('Error sending robot info to server: ', err);
     });
 
-    req.write(poseData);
+    req.write(postData);
     req.end();
 }

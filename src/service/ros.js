@@ -13,6 +13,7 @@ function ServiceCreate(serviceName,srvType, callback){
   const service = nh.advertiseService(serviceName, srvType, callback);
 }
 
+<<<<<<< HEAD
 ServiceCreate('/robotstatus', 'carrier_ros_srv/DroneStatus', (req, resp) => {
   //0 : go
   //1 : stop
@@ -84,3 +85,9 @@ exports.ros_call = (req, res) => {
   });
 
 }
+=======
+exports.receiveRobotinfo = async (req, res) =>{
+    receiveRobotInfo()
+}
+//여기
+>>>>>>> fdb17d90b0686c65a56a315a813f0cb20d42e6a1
