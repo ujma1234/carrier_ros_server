@@ -15,7 +15,7 @@ app.use(bodyParser.json())
 app.use(cors());
 app.use(Route);
 
-app.set('port', process.env.PORT || 550);
+app.set('port', process.env.PORT || 3000);
 
 app.listen(app.get('port') , ()=>{
     console.log(app.get('port'),': waiting .....');
