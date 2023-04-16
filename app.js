@@ -1,3 +1,10 @@
+#!/usr/bin/env node
+
+'use strict';
+/**no
+ * This example demonstrates simple sending of messages over the ROS system.
+ */
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
