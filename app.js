@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const Route = require('../control-server/src/routes/route.js');
+const Route = require('../carrier_ros_server/src/routes/route.js');
 const app = express();
 
 app.use(bodyParser.json())
@@ -10,16 +10,8 @@ app.use(Route);
 
 app.set('port', process.env.PORT || 550);
 
-app.get('/', function(req, res) {
-    console.log("dd");
-})
-
-app.post('/', function(req, res) {
-    console.log("dd");
-})
-
 app.listen(app.get('port') , ()=>{
-    console.log(app.get('port'),': waiting ...');
+    console.log(app.get('port'),': waiting .....');
 })
 
 

@@ -1,37 +1,16 @@
-const arDrone = require('ar-drone');
-const http = require('http');
+function drone_video (req, res, pngStream) {
+    console.log("drone");
 
-function drone_video(drone_addr) {
-    const client = arDrone.createClient(
-        {ip : drone_addr}
-    )
-    var videoStream = client.getVideoStream();
-    return new Promise(function () {
-        videoStream.on('data', function(data){
+    res.writeHead(200, {'Content-Type' : 'text/html'});
 
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type' : 'application/json'
-                }
-            };
-            const request = http.request('http://211.37.13.187/', requestOptions, (response) => {
-                console.log(`Response status code: ${response.statusCode}`);
-            });
-            request.on('error', (error) => {
-                console.error(`An error occurred: ${error}`);
-            });
+    res.write('<img style="width: 100%; height: 100vh;" src="data:image/png;base64," id="droneImage"/>');
 
-            const postData = {
-                videoData: data
-            };
-            request.write(JSON.stringify(postData));
+    pngStream.on('data', function(data) {
+        var base64Image = Buffer.from(data, 'binary').toString('base64');
+        res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + base64Image + '";</script>');
+    });
+}
 
-            request.end();
-        })
-    })
-} 
-
-exports.drone_video = async (drone_addr) => {
-    drone_video(drone_addr);
+exports.drone_video = (req,res,pngStream) => {
+    drone_video(req, res, pngStream);
 }
