@@ -111,16 +111,32 @@ exports.ros_call = (req, res) => {
       res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + buffer.toString('base64') + '";</script>');
     });
   })
-  
-  console.log("a")
+
+
+  subscribeTopic('/ir_camera_image', 'sensor_msgs/Image', (data) => {
+    sharp(Buffer.from(data.data), {
+      raw: {
+        width: data.width,
+        height: data.height,
+        channels: 3
+      }
+    })
+    .png()
+    .toBuffer((err, buffer) => {
+      if (err) throw err;
+      res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + buffer.toString('base64') + '";</script>');
+    });
+  })
+
+
   subscribeTopic('/gps/filtered', 'sensor_msgs/NavSatFix', (data) => {
     console.log(`latitude message: ${data.latitude}`);
     console.log(`longitude message: ${data.longitude}`);
   });
 
-  subscribeTopic('/odom', 'nav_msgs/Odometry', (data) => {
-    // console.log(`latitude message: ${data.pose.pose.position.x}`);
-    // console.log(`longitude message: ${data.pose.pose.position.y}`);
+  subscribeTopic('/battery', 'carrier_ros_msg/Battery', (data) => {
+    console.log(`latitude message: ${data.robot_battery}`);
+    console.log(`longitude message: ${data.drone_battery}`);
   });
 
 }
