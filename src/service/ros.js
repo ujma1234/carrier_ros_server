@@ -1,54 +1,93 @@
+/*setting */
+
 const rosnodejs = require('rosnodejs');
 node = rosnodejs.initNode('/carrier_ros_server');
 const sharp = require('sharp');
 const nh = rosnodejs.nh;
-const DroneStart = rosnodejs.require('carrier_ros_srv').srv.DroneStart;
-// 여기
 
+
+const robot_start_client = nh.serviceClient('/robot/start', 'carrier_ros_srv/RobotStart');
+const robot_stop_client = nh.serviceClient('/robot/stop', 'std_srvs/Trigger');
+const robot_recall_clinet = nh.serviceClient('/robot/recall', 'std_srvs/Trigger');
+const drone_start_client = nh.serviceClient('/drone/start', 'carrier_ros_srv/DroneStart');
+const drone_recall_clinet = nh.serviceClient('/drone/recall', 'std_srvs/Trigger');
+
+const robot_emergency_client = nh.serviceClient('/robot/emergency', 'std_srvs/Trigger');
+//-----------------------------
+
+/*subscribe function*/
 function subscribeTopic(topicName, messageType, callback) {
       const sub = nh.subscribe(topicName, messageType, callback);
 }
 
-function ServiceCreate(serviceName,srvType, callback){
+/*service_server function*/
+function ServiceServer(serviceName,srvType, callback){
   const service = nh.advertiseService(serviceName, srvType, callback);
 }
 
-<<<<<<< HEAD
-ServiceCreate('/robotstatus', 'carrier_ros_srv/DroneStatus', (req, resp) => {
+
+ServiceServer('/robotstatus', 'carrier_ros_srv/RobotStatus', (req, resp) => {
   //0 : go
   //1 : stop
   //2 : come back
   rosnodejs.log.info(`robotstop Service response ${req.status}`);
   resp.success = true;
 })
-// function robot_start(latitude, longitude) {
-//     //문 닫아주세요. 성공적으로 열면 true 반환
-//     const client = nh.serviceClient('/robotstart', 'carrier_ros_srv/RobotStart');
-//     request = new DroneStart.Request();
-//     request.latitude = latitude;
-//     request.longitude = longitude;
-//     client.call(request).then((resp) => {
-//         console.log('robotstart Service response ' + JSON.stringify(resp));
-//     });
-// }
+ServiceServer('/dronestatus', 'carrier_ros_srv/DroneStatus', (req, resp) => {
+  //0 : wait
+  //1 : prepare to fly
+  //2 : flying
+  //3 : come back
+  //4 : landing
+  //5 : prepare to charge
+  //6 : complete to charge
+  rosnodejs.log.info(`robotstop Service response ${req.status}`);
+  resp.success = true;
+})
 
-function robot_stop() {
-  const client = nh.serviceClient('/robotstop', 'std_srvs/Trigger');
-  client.call().then((resp) => {
-      console.log('robotstop Service response ' + JSON.stringify(resp));
+function robot_start(robot_latitude,robot_longitude) {
+  const RobotStart = rosnodejs.require('carrier_ros_srv').srv.RobotStart;
+  request = new RobotStart.Request();
+  request.latitude = robot_latitude;
+  request.latitude = robot_longitude;
+  robot_start_client.call(request).then((resp) => {
+      console.log('robot_start Service response ' + JSON.stringify(resp));
   });
-  console.log('aa')
 }
 
-// function drone_start(mode) {
-//   //문 닫아주세요. 성공적으로 열면 true 반환
-//   const client = nh.serviceClient('/dronestart', 'carrier_ros_srv/DroneStart');
-//   request = new DroneStart.Request();
-//   request.mode = mode;
-//   client.call(request).then((resp) => {
-//       console.log('closedoor Service response ' + JSON.stringify(resp));
-//   });
-// }
+function robot_stop() {
+  robot_stop_client.call().then((resp) => {
+      console.log('robot_stop Service response ' + JSON.stringify(resp));
+  });
+}
+
+
+function robot_recall() {
+  robot_recall_clinet.call().then((resp) => {
+      console.log('robot_recall Service response ' + JSON.stringify(resp));
+  });
+}
+
+function drone_start(drone_mode) {
+  const DroneStart = rosnodejs.require('carrier_ros_srv').srv.DroneStart;
+  request = new DroneStart.Request();
+  request.mode = drone_mode;
+  drone_start_client.call(request).then((resp) => {
+      console.log('drone_start Service response ' + JSON.stringify(resp));
+  });
+}
+
+function drone_recall() {
+  drone_recall_clinet.call().then((resp) => {
+      console.log('drone_recall Service response ' + JSON.stringify(resp));
+  });
+}
+
+function robot_emergency() {
+  robot_emergency_client.call().then((resp) => {
+      console.log('robot_emergency Service response ' + JSON.stringify(resp));
+  });
+}
 
 function hello_world(req, res) {
   res.writeHead(200, {'Content-Type' : 'text/html'});
@@ -85,9 +124,3 @@ exports.ros_call = (req, res) => {
   });
 
 }
-=======
-exports.receiveRobotinfo = async (req, res) =>{
-    receiveRobotInfo()
-}
-//여기
->>>>>>> fdb17d90b0686c65a56a315a813f0cb20d42e6a1
