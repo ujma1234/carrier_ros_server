@@ -1,5 +1,6 @@
 /*setting */
 
+const { request } = require('express');
 const rosnodejs = require('rosnodejs');
 node = rosnodejs.initNode('/carrier_ros_server');
 const sharp = require('sharp');
@@ -24,26 +25,6 @@ function subscribeTopic(topicName, messageType, callback) {
 function ServiceServer(serviceName,srvType, callback){
   const service = nh.advertiseService(serviceName, srvType, callback);
 }
-
-
-ServiceServer('/robotstatus', 'carrier_ros_srv/RobotStatus', (req, resp) => {
-  //0 : go
-  //1 : stop
-  //2 : come back
-  rosnodejs.log.info(`robotstop Service response ${req.status}`);
-  resp.success = true;
-})
-ServiceServer('/dronestatus', 'carrier_ros_srv/DroneStatus', (req, resp) => {
-  //0 : wait
-  //1 : prepare to fly
-  //2 : flying
-  //3 : come back
-  //4 : landing
-  //5 : prepare to charge
-  //6 : complete to charge
-  rosnodejs.log.info(`robotstop Service response ${req.status}`);
-  resp.success = true;
-})
 
 function robot_start(robot_latitude,robot_longitude) {
   const RobotStart = rosnodejs.require('carrier_ros_srv').srv.RobotStart;
@@ -74,10 +55,12 @@ function robot_emergency() {
   });
 }
 
-function drone_start(drone_mode) {
+function drone_start(drone_mode,robot_latitude,robot_longitude) {
   const DroneStart = rosnodejs.require('carrier_ros_srv').srv.DroneStart;
   request = new DroneStart.Request();
   request.mode = drone_mode;
+  request.latitude = robot_latitude;
+  request.longitude = robot_longitude;
   drone_start_client.call(request).then((resp) => {
       console.log('drone_start Service response ' + JSON.stringify(resp));
   });
@@ -97,23 +80,30 @@ function hello_world(req, res) {
 exports.ros_call = (req, res) => {
 
   hello_world(req, res)
-  subscribeTopic('/front_camera/color/image_raw', 'sensor_msgs/Image', (data) => {
-    sharp(Buffer.from(data.data), {
-      raw: {
-        width: data.width,
-        height: data.height,
-        channels: 3
-      }
-    })
-    .png()
-    .toBuffer((err, buffer) => {
-      if (err) throw err;
-      res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + buffer.toString('base64') + '";</script>');
-    });
+  robot_start([1,1],[2,2])
+
+  /////////////////////service server
+  ServiceServer('/robot/status', 'carrier_ros_srv/RobotStatus', (req, resp) => {
+    //0 : go
+    //1 : stop
+    //2 : come back
+    rosnodejs.log.info(`robotstop Service response ${req.status}`);
+    resp.success = true;
+  })
+  ServiceServer('/drone/status', 'carrier_ros_srv/DroneStatus', (req, resp) => {
+    //0 : wait
+    //1 : prepare to fly
+    //2 : flying
+    //3 : come back
+    //4 : landing
+    //5 : prepare to charge
+    //6 : complete to charge
+    rosnodejs.log.info(`robotstop Service response ${req.status}`);
+    resp.success = true;
   })
 
-
-  subscribeTopic('/ir_camera_image', 'sensor_msgs/Image', (data) => {
+  /////////////////////subscribe
+  subscribeTopic('/front_camera/color/image_raw', 'sensor_msgs/Image', (data) => {
     sharp(Buffer.from(data.data), {
       raw: {
         width: data.width,
