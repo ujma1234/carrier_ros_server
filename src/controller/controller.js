@@ -1,14 +1,23 @@
 const Service = require('../service/service.js');
-const RobotInfo = require('../service/ros.js');
+const ros = require('../service/ros.js');
 
-exports.App = async (req, res, next) =>{
+// exports.App = async (req, res, next) =>{
+//     try {
+//         if (req.body['command'] == "connection") {
+//             await res.send("connection success");
+//             RobotInfo.receiveRobotInfo();
+//             // await Service.postcall(req, res);
+//         }
+//     } catch (err) {
+//         return res.status(500).json(err);
+//     }
+// };
+
+exports.ROS = async (req, res) => {
     try {
-        if (req.body['command'] == "connection") {
-            await res.send("connection success");
-            RobotInfo.receiveRobotInfo();
-            // await Service.postcall(req, res);
-        }
+        ros.ros_call(req, res);
     } catch (err) {
-        return res.status(500).json(err);
+        console.log(err);
+        return res.status(500),json(err);
     }
 };

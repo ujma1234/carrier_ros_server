@@ -1,6 +1,6 @@
 const Drone = require('../service/drone.js')
 const noDrone = require('../service/wait.js')
-const ros = require('../service/ros.js')
+// const ros = require('../service/ros.js')
 var drone_addr = "192.168.1.200";
 
 exports.Drone = (req, res, pngStream) =>{

@@ -5,7 +5,9 @@ const Controller = require('../controller/controller.js');
 
 const Controller_drone = require("../controller/controller_drone.js")
 
-router.get('/*', Controller_drone.Drone);
+router.get('/drone/*', Controller_drone.Drone);
+
+router.get('/test/*', Controller.ROS)
 
 router.post('/', Controller.App);
 
