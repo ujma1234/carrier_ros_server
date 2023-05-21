@@ -49,7 +49,7 @@ function robot_start(robot_latitude,robot_longitude) {
   const RobotStart = rosnodejs.require('carrier_ros_srv').srv.RobotStart;
   request = new RobotStart.Request();
   request.latitude = robot_latitude;
-  request.latitude = robot_longitude;
+  request.longitude = robot_longitude;
   robot_start_client.call(request).then((resp) => {
       console.log('robot_start Service response ' + JSON.stringify(resp));
   });
@@ -68,6 +68,12 @@ function robot_recall() {
   });
 }
 
+function robot_emergency() {
+  robot_emergency_client.call().then((resp) => {
+      console.log('robot_emergency Service response ' + JSON.stringify(resp));
+  });
+}
+
 function drone_start(drone_mode) {
   const DroneStart = rosnodejs.require('carrier_ros_srv').srv.DroneStart;
   request = new DroneStart.Request();
@@ -80,12 +86,6 @@ function drone_start(drone_mode) {
 function drone_recall() {
   drone_recall_clinet.call().then((resp) => {
       console.log('drone_recall Service response ' + JSON.stringify(resp));
-  });
-}
-
-function robot_emergency() {
-  robot_emergency_client.call().then((resp) => {
-      console.log('robot_emergency Service response ' + JSON.stringify(resp));
   });
 }
 
@@ -135,8 +135,8 @@ exports.ros_call = (req, res) => {
   });
 
   subscribeTopic('/battery', 'carrier_ros_msg/Battery', (data) => {
-    console.log(`latitude message: ${data.robot_battery}`);
-    console.log(`longitude message: ${data.drone_battery}`);
+    console.log(`robot battery message: ${data.robot_battery}`);
+    console.log(`drone battery message: ${data.drone_battery}`);
   });
 
 }
