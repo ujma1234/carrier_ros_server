@@ -1,9 +1,8 @@
 const Drone = require('../service/drone.js')
-const noDrone = require('../service/wait.js')
-// const ros = require('../service/ros.js')
+const ros = require('../service/ros.js')
 var drone_addr = "192.168.1.200";
 
-exports.Drone = (req, res, pngStream) =>{
+exports.Camera = (req, res) =>{
     console.log(req.params)
     if (req.params['0'] == 'drone'){
         const arDrone = require('ar-drone');
@@ -16,7 +15,6 @@ exports.Drone = (req, res, pngStream) =>{
         Drone.drone_video(req, res, pngStream);
     }
     else if (req.params['0'] == 'realSense') {    
-        ros.ros_call(req, res)
-
+        ros.cam(req, res)
     }
 }

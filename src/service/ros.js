@@ -36,10 +36,34 @@ function robot_start(robot_latitude,robot_longitude) {
   });
 }
 
+exports.robot_go = (req, res) => {
+  const { dest, way } = req.body;
+  const wayKeys = Object.keys(way);
+  const latitudeArray = [];
+  const longitudeArray = [];
+  for (let i = wayKeys.length; i >= 1; i--) {
+    const key = i.toString();
+    if (way[key]) {
+      latitudeArray.push(parseFloat(way[key].latitude));
+      longitudeArray.push(parseFloat(way[key].longitude));
+    }
+  }
+  latitudeArray.push(parseFloat(dest.latitude));
+  longitudeArray.push(parseFloat(dest.longitude));
+  robot_start(latitudeArray, longitudeArray);
+  res.sendStatus(200);
+}
+
+
 function robot_stop() {
   robot_stop_client.call().then((resp) => {
       console.log('robot_stop Service response ' + JSON.stringify(resp));
   });
+}
+
+exports.RS = (req, res)  => {
+  robot_stop();
+  res.sendStatus(200);
 }
 
 
@@ -49,10 +73,20 @@ function robot_recall() {
   });
 }
 
+exports.RR = (req, res) => {
+  robot_recall();
+  res.sendStatus(200);
+}
+
 function robot_emergency() {
   robot_emergency_client.call().then((resp) => {
       console.log('robot_emergency Service response ' + JSON.stringify(resp));
   });
+}
+
+exports.RE = (req, res) => {
+  robot_emergency();
+  res.sendStatus(200);
 }
 
 function drone_start(drone_mode,robot_latitude,robot_longitude) {
@@ -66,43 +100,30 @@ function drone_start(drone_mode,robot_latitude,robot_longitude) {
   });
 }
 
+exports.drone_go = (req, res) => {
+  const { latlng, mode } = req.body;
+  drone_start(parseInt(mode),parseFloat(latlng["latitude"]),parseFloat(latlng["longtitude"]));
+  res.sendStatus(200);
+}
+
 function drone_recall() {
   drone_recall_clinet.call().then((resp) => {
       console.log('drone_recall Service response ' + JSON.stringify(resp));
   });
 }
 
-function hello_world(req, res) {
-  res.writeHead(200, {'Content-Type' : 'text/html'});
-  res.write('<img style="width: 100%; height: 100vh;" src="data:image/png;base64," id="droneImage"/>');
+exports.DR =(req, res) => {
+  drone_recall();
+  res.sendStatus(200);
 }
 
-exports.ros_call = (req, res) => {
+function hello_world(req, res) {
+  res.writeHead(200, {'Content-Type' : 'text/html'});
+  res.write('<img style="width: 100%; height: 100vh; object-fit: cover;" src="data:image/png;base64," id="droneImage"/>');
+}
 
-  hello_world(req, res)
-  robot_start([1,1],[2,2])
-
-  /////////////////////service server
-  ServiceServer('/robot/status', 'carrier_ros_srv/RobotStatus', (req, resp) => {
-    //0 : go
-    //1 : stop
-    //2 : come back
-    rosnodejs.log.info(`robotstop Service response ${req.status}`);
-    resp.success = true;
-  })
-  ServiceServer('/drone/status', 'carrier_ros_srv/DroneStatus', (req, resp) => {
-    //0 : wait
-    //1 : prepare to fly
-    //2 : flying
-    //3 : come back
-    //4 : landing
-    //5 : prepare to charge
-    //6 : complete to charge
-    rosnodejs.log.info(`robotstop Service response ${req.status}`);
-    resp.success = true;
-  })
-
-  /////////////////////subscribe
+exports.cam = (req, res) => {
+  hello_world(req, res);
   subscribeTopic('/front_camera/color/image_raw', 'sensor_msgs/Image', (data) => {
     sharp(Buffer.from(data.data), {
       raw: {
@@ -117,16 +138,62 @@ exports.ros_call = (req, res) => {
       res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + buffer.toString('base64') + '";</script>');
     });
   })
+}
 
+var lat;
+var lng;
 
-  subscribeTopic('/gps/filtered', 'sensor_msgs/NavSatFix', (data) => {
-    console.log(`latitude message: ${data.latitude}`);
-    console.log(`longitude message: ${data.longitude}`);
-  });
+subscribeTopic('/gps/filtered', 'sensor_msgs/NavSatFix', (data) => {
+  lat = data.latitude.toString();
+  lng = data.longitude.toString();
+  // console.log(`latitude message: ${data.latitude}`);
+  // console.log(`longitude message: ${data.longitude}`);
+});
 
-  subscribeTopic('/battery', 'carrier_ros_msg/Battery', (data) => {
-    console.log(`robot battery message: ${data.robot_battery}`);
-    console.log(`drone battery message: ${data.drone_battery}`);
-  });
+exports.position = (req, res) => {
+  res.send({"latlng" : lat+","+lng})
+}
 
+var rb;
+var db;
+var percent;
+
+subscribeTopic('/battery', 'carrier_ros_msg/Battery', (data) => {
+  rb = data.robot_battery.toString();
+  db = data.drone_battery.toString();
+  // console.log(`robot battery message: ${data.robot_battery}`);
+  // console.log(`drone battery message: ${data.drone_battery}`);
+});
+
+exports.robotInfo = (req, res) => {
+  res.send({"robot_battery" : rb, "drone_battery" : db, "robot_state" : "10"})
+}
+
+var rs;
+var ds;
+
+ServiceServer('/robot/status', 'carrier_ros_srv/RobotStatus', (req, resp) => {
+  //0 : go
+  //1 : stop
+  //2 : come back
+  // rosnodejs.log.info(`robotstop Service response ${req.status}`);
+  rs = req.status.toString();
+  resp.success = true;
+})
+
+ServiceServer('/drone/status', 'carrier_ros_srv/DroneStatus', (req, resp) => {
+  //0 : wait
+  //1 : prepare to fly
+  //2 : flying
+  //3 : come back
+  //4 : landing
+  //5 : prepare to charge
+  //6 : complete to charge
+  // rosnodejs.log.info(`robotstop Service response ${req.status}`);
+  ds = req.status.toString();
+  resp.success = true;
+})
+
+exports.status = (req, res) => {
+  res.send({"drone_status" : ds, "robot_status" : rs})
 }

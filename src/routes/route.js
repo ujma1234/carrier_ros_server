@@ -3,13 +3,15 @@ var router = express.Router();
 
 const Controller = require('../controller/controller.js');
 
-const Controller_drone = require("../controller/controller_drone.js")
+const Controller_camera = require("../controller/controller_drone.js")
 
-router.get('/drone/*', Controller_drone.Drone);
+router.get('/camera/*', Controller_camera.Camera);
 
-router.get('/test/*', Controller.ROS)
+// router.get('/test/*', Controller.ROS)
 
-router.post('/', Controller.App);
+router.post('/info', Controller.App);
+
+router.post('/return/*', Controller.Command);
 
 module.exports = router
 

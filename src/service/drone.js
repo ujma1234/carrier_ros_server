@@ -3,7 +3,7 @@ function drone_video (req, res, pngStream) {
 
     res.writeHead(200, {'Content-Type' : 'text/html'});
 
-    res.write('<img style="width: 100%; height: 100vh;" src="data:image/png;base64," id="droneImage"/>');
+    res.write('<img style="width: 100%; height: 100vh;object-fit: cover;" src="data:image/png;base64," id="droneImage"/>');
 
     pngStream.on('data', function(data) {
         var base64Image = Buffer.from(data, 'binary').toString('base64');
