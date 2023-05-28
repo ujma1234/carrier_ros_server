@@ -126,25 +126,8 @@ function hello_world(req, res) {
 }
 
 exports.ws_cam = (ws) => {
-  var i = 0
   subscribeTopic('/front_camera/color/image_raw/compressed', 'sensor_msgs/CompressedImage', (data) => {
     ws.send(data.data);
-    // sharp(Buffer.from(data.data), {
-    //   raw: {
-    //     width: data.width,
-    //     height: data.height,
-    //     channels: 3
-    //   }
-    // })
-    // .png()
-    // .toBuffer((err, buffer) => {
-    //   i ++;
-    //   if (err) throw err;
-    //   // console.log(data.header.seq);
-    //   (i == 1)
-    //   ws.send(buffer.toString('base64'));
-    //   // res.write('<script>document.getElementById("droneImage").src="data:image/png;base64,' + buffer.toString('base64') + '";</script>');
-    // });
   })
 }
 
