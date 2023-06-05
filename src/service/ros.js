@@ -41,15 +41,16 @@ exports.robot_go = (req, res) => {
   const wayKeys = Object.keys(way);
   const latitudeArray = [];
   const longitudeArray = [];
-  for (let i = wayKeys.length; i >= 1; i--) {
+  latitudeArray.push(parseFloat(dest.latitude));
+  longitudeArray.push(parseFloat(dest.longitude));
+  for (let i = 0; i < wayKeys.length; i++) {
     const key = i.toString();
     if (way[key]) {
       latitudeArray.push(parseFloat(way[key].latitude));
       longitudeArray.push(parseFloat(way[key].longitude));
     }
   }
-  latitudeArray.push(parseFloat(dest.latitude));
-  longitudeArray.push(parseFloat(dest.longitude));
+  
   robot_start(latitudeArray, longitudeArray);
   res.sendStatus(200);
 }
