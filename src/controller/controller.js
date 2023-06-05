@@ -2,8 +2,10 @@ const Service = require('../service/service.js');
 const ros = require('../service/ros.js');
 
 exports.App = (req, res, next) =>{
+    var cmd = req.body['command'];
+    console.log(cmd);
     try {
-        var cmd = req.body['command']
+        
         if (req.body['command'] == "GetPosition") {
             ros.position(req, res);
         } else if (req.body['command'] == "robot_info") {
@@ -12,7 +14,7 @@ exports.App = (req, res, next) =>{
             ros.status(req, res);
         }
     } catch (err) {
-        console.log(err);
+        console.log(`${err}`);
         return res.status(500);
     }
 };
@@ -20,11 +22,13 @@ exports.App = (req, res, next) =>{
 exports.Command = (req, res) => {
     try {
         var cmd = req.params['0'];
+        console.log(cmd);
         if(cmd == 'GO') {
             ros.robot_go(req, res);
         } else if (cmd == "Drone_go") {
             ros.drone_go(req, res);
         } else if (cmd == "cmd") {
+            console.log(req.body['command']);
             if (req.body['command'] == "drone_return") {
                 ros.DR(req,res);
             } else if (req.body['command'] == "drone_stop") {
